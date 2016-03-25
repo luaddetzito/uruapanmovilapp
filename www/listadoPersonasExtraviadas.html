@@ -1,0 +1,92 @@
+<!DOCTYPE html> 
+<html> 
+<head>
+    <meta charset="utf-8"> 
+    <title>Uruapan Móvil</title> 
+    <meta id="Viewport" name="viewport" content="maximum-scale=1, user-scalable=yes"> 
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/stroll.min.css">
+    <script src="plugins/jquery-1.11.1.min.js"></script>
+    <script src="plugins/stroll.min.js"></script>  
+    <script src="plugins/main.js"></script>
+    <script src="cordova.js"></script>
+    <script type="text/javascript" src="js/SocialSharing.js"></script>
+	<script type="text/javascript">    
+        document.addEventListener('deviceready', function() {
+                setTimeout(function() { navigator.splashscreen.hide(); }, 3000);
+            });    
+        $(function(){
+            if( /iPhone|iPad|iPod/i.test(navigator.userAgent) ) {
+              var ww = ( $(window).width() < window.screen.width ) ? $(window).width() : window.screen.width; 
+              var mw = 1080;
+              var ratio =  ww / mw;
+              $('#Viewport').attr('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', width=' + ww);
+            }
+            });											
+    </script>
+</head> 
+<body> 
+  <div class="lst"> 
+    <div class="header_personas_extraviadas">
+      <a href="#comunidad" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list">              
+  <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  <script type="text/javascript">    
+    var mid = getQueryVariable("id");											
+    $.ajax({
+    type: "GET",
+    url: "http://www.uruapanmovil.com/nta_server/article_list_personas_extraviadas.php?id="+ mid +"",
+    dataType: "html",
+    crossDomain: true,
+    beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+    success: function(data) {
+      $( ".loading_spinner_all" ).hide();
+      $('#article_list').html(data);					
+      stroll.bind( '#article_list ul' );
+      var processing;
+      var limit = 10;
+      window.sessionStorage.setItem("dbe",'start');					
+      $('#article_list ul').scroll(function() {
+      if (processing)
+      return false;																			
+        if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 																									
+          if(window.sessionStorage.getItem("dbe") == 'end'){ 
+            var end = window.sessionStorage.getItem("dbe"); 
+          } else {
+            var end = 'start';	
+          }								
+          if (end == 'start'){ 									
+            processing = true;								
+            $.ajax({
+              type: "GET",
+              url: "http://www.uruapanmovil.com/nta_server/article_list_add_personas_extraviadas.php?id="+ mid +"&limit="+ limit +"",									
+              dataType: "html",
+              crossDomain: true,
+              beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+              success: function(html) {									
+              $( ".loading_spinner_all" ).hide();									
+              $('#article_list ul').append(html);
+              stroll.bind( '#article_list ul' );
+               processing = false;
+               limit = limit + 10;																										
+              },
+              error: function(){
+                $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+              }
+            });
+          }
+        } 
+      });				
+    },
+    error: function(){
+      $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+    }
+    });			
+  </script>        	        
+  </div>         
+</body>
+</html>

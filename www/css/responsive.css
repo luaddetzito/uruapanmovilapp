@@ -1,0 +1,68 @@
+@charset "utf-8";
+
+.logo{ width:850px; height: 250px; left: 50%; margin-top:1px; background-size:cover; background-image:url(../images/logo.png);}
+/*.logo{ width:850px; height: 250px; left: 50%; margin-top:10px; /*background-color:pink; background-size:cover; background-image:url('http://www.uruapanmovil.interlabs.com.mx/app/assets/logo.png');}*/
+.buttonList a { position: fixed; cursor:	pointer;}
+.buttonList.large a	{ margin-top:410px; width: 365px; height: 365px;}
+.buttonList.large2 a	{ margin-top:410px; width: 365px; height: 420px;}
+.buttonList a.leftTop { left: 15%; margin-left: -40px; top: -10px; background-size:cover; background-image:url(../images/empresas1.jpg);}
+.buttonList a.rightTop { right: 15%; margin-right: -40px; top: -10px; background-size:cover; background-image:url(../images/promociones1.jpg);}
+.buttonList a.leftMiddle { left: 15%; margin-left: -40px; top: 400px; background-size:cover; background-image:url(../images/noticias1.jpg);}
+.buttonList a.rightMiddle { right: 15%; margin-right: -40px; top: 400px; background-size:cover; background-image:url(../images/eventos1.jpg);}
+.buttonList a.leftBottom { left: 15%; margin-left: -40px; top: 820px; background-size:cover; background-image:url(../images/turismo1.jpg);}
+.buttonList a.rightBottom { right: 15%; margin-right: -40px; top: 820px; background-size:cover; background-image:url(../images/utiles1.jpg);}
+.buttonList a.leftTopSubmenu { left: 15%; margin-left: -40px; top: -120px; background-size:cover; background-image:url(../images/transporte1.jpg);}
+.buttonList a.rightTopSubmenu { right: 15%; margin-right: -40px; top: -120px; background-size:cover; background-image:url(../images/emergencias1.jpg);}
+.buttonList a.leftMiddleSubmenu { left: 15%; margin-left: -40px; top: 350px; background-size:cover; background-image:url(../images/comunidad1.jpg);}
+.buttonList a.rightMiddleSubmenu { right: 15%; margin-right: -40px; top: 350px; background-size:cover; background-image:url(../images/gobierno1.jpg);}
+.buttonList a.contacto { top: 850px; width:800px; height:200px; right: 13%; background-image:url(../images/contactonaranja.png);}
+.marginfinal { width:240px; height: 2px; margin-bottom: 220px;}
+.contsearch { width:35%; margin-top:10px;}
+.ui-input-search input{  padding-left: 1.5em; height:0px; font-size:23px;}
+.contacto { width:800px; height: 200px; margin-top:1400px; /*background-color:pink; */background-size:cover; background-image:url(../images/contactonaranja.png);}
+
+.buttonList a.leftTopPE { left: 15%; margin-left: -40px; top: -120px; background-size:cover; background-image:url(../images/personasextraviadas1.jpg);}
+.buttonList a.rightTopMA { right: 15%; margin-right: -40px; top: -120px; background-size:cover; background-image:url(../images/mascotas1.jpg);}
+
+.leftTopSubmenuTaxis { left: 15%; margin-left: -40px; top: -120px; background-size:cover; background-image:url(../images/taxis1.jpg);}
+.rightTopSubmenuAutobuses { right: 15%; margin-right: -40px; top: -120px; background-size:cover; background-image:url(../images/autobuses1.jpg);}
+.leftMiddleSubmenuAviones { left: 15%; margin-left: -40px; top: 350px; background-size:cover; background-image:url(../images/aviones1.jpg);}
+
+.ui-icon-delete {
+  -ms-transform: scale(2); /* IE 9 */
+  -webkit-transform: scale(2); /* Chrome, Safari, Opera */
+  transform: scale(1); padding-left: 0.0em;}
+
+.ui-input-has-clear {
+  -ms-transform: scale(2); /* IE 9 */
+  -webkit-transform: scale(2); /* Chrome, Safari, Opera */
+  transform: scale(2);}
+  
+
+.ui-page .ui-page-theme-a .ui-page-active {
+min-height:1900px !important;
+}
+
+.ui-mobile-viewport ui-overlay-a {min-height:1900px !important;}
+
+#inicio {
+position:fixed;
+min-height:1690px !important;
+}
+
+#utiles {
+min-height:1690px !important;
+}
+
+#comunidad {
+min-height:1690px !important;
+}
+
+#contacto {
+min-height:1690px !important;
+}
+
+#mascotas {
+min-height:1690px !important;
+}
+

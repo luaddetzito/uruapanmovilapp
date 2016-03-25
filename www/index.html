@@ -1,0 +1,2166 @@
+<!DOCTYPE html> 
+<html> 
+<head>
+  <meta charset="utf-8">
+  <title>Uruapan M&oacute;vil</title> 
+  <meta id="Viewport" name="viewport">
+  <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css"/>
+  <link rel="stylesheet" href="css/u.min.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/main2.css" />
+  <link rel="stylesheet" href="css/stroll.min.css">
+  <link rel="stylesheet" href="css/personal.css" />
+  <script type="application/javascript" src="js/fastclick.js"></script>
+  <script type="application/javascript" src="js/jquery.js"></script>
+  <script type="application/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+  <script type="application/javascript" src="plugins/main.js"></script>
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+  <script src="plugins/jquery-1.11.1.min.js"></script>
+  <script src="plugins/stroll.min.js"></script>
+  <script type="text/javascript" src="js/SocialSharing.js"></script>
+  <script type="text/javascript" charset="utf-8">                 
+    function openDeviceBrowser (externalLinkToOpen){window.open(externalLinkToOpen, '_system', 'location=no');}                                                                   
+  </script>       
+  <script type="text/javascript" charset="utf-8">                     
+    document.addEventListener("deviceready", onDeviceReady, false);     
+    function onDeviceReady() {
+      window.plugin.statusbarOverlay.hide();
+    }
+     
+
+    function alertDismissed() {         
+      location.href='sininternet.html';
+      navigator.app.exitApp();
+    }   
+
+    function onDeviceReady() 
+    {
+      if(navigator.network.connection.type == Connection.NONE)
+      {
+        navigator.notification.vibrate(1000);
+        navigator.notification.alert(
+        'No hay conexión a Internet. Esta App no puede funcionar de manera correcta.',  // message
+        alertDismissed, // callback
+        'Alerta!',      // title
+        'Aceptar'       // buttonName                                            
+        );                          
+      }
+      $( ".loading_spinner_all" ).hide();
+    }
+    
+    function MostrarHome()
+    {
+      if ($("#autocomplete-input").val() == "")
+      {
+         $( ".Botones" ).show();
+         $( ".logo" ).show();
+         $( "#article_list" ).hide();
+      }      
+    }   
+
+    function quitarSpinner()
+    {
+       $( ".loading_spinner_all" ).hide();
+    }
+    
+    document.addEventListener('deviceready', function() {
+      setTimeout(function() { navigator.splashscreen.hide(); }, 3000);
+    });
+    function urlNoticia()
+      {
+        var prefixURL = 'http://www.uruapanmovil.com/app/detalleEmpresa.php?recordID=';
+        var id= localStorage.getItem("art");
+        var url = prefixURL + id;        
+        return url;
+      }
+    $(function(){
+      if( /iPhone|iPad|iPod/i.test(navigator.userAgent) ) {
+        var ww = ( $(window).width() < window.screen.width ) ? $(window).width() : window.screen.width; 
+        var mw = 1080;
+        var ratio =  ww / mw;
+        $('#Viewport').attr('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', user-scalable=no, width=' + ww);
+      }        
+    });
+  </script>  
+  <!-- Al escibir en la caja de texto de busqueda, se mostrara la lista  -->
+  <script type="text/javascript"> 
+    $(document).ready(function() {
+      $("#autocomplete-input").keydown(function(event){
+        if  (event.which == 13) // Si el usuario presiona enter
+        {
+          var cajaBusqueda = document.getElementById("autocomplete-input");  
+          cajaBusqueda.blur();              
+          busqueda();
+        }                                       
+      }); 
+    }); 
+  </script>
+  <!-- Al limpiar la caja de texto de búsquea, se visualizarán de nuevo los iconos -->
+  <script type="text/javascript">
+    $(document).on('click', '.ui-input-clear', function () {
+      $( ".Botones" ).show();
+      $( ".logo" ).show();
+      $( "#article_list" ).hide();
+    });
+  </script>  
+  <!-- Mostrar el listado de las  promociones -->
+  <script type="text/javascript"> 
+    $(document).ready(function () {
+      $("#linkListadoPromociones").click(function (){  
+      var mid = 2;						
+      $.ajax({
+      type: "GET",
+      url: "http://www.uruapanmovil.com/nta_server/article_list_promociones.php?id=2",
+      dataType: "html",
+      crossDomain: true,
+      beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+      success: function(data) {
+      $( ".loading_spinner_all" ).hide();
+      $('#article_list_promociones').html(data);					
+      stroll.bind( '#article_list_promociones ul' );
+      var processing;
+      var limit = 10;
+      window.sessionStorage.setItem("dbe",'start');					
+      $('#article_list_promociones ul').scroll(function() {
+        if (processing)
+          return false;
+        if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+          if(window.sessionStorage.getItem("dbe") == 'end'){ 
+            var end = window.sessionStorage.getItem("dbe"); 
+          } else {
+            var end = 'start';	
+          }
+          if (end == 'start'){ 
+            processing = true;
+            $.ajax({
+              type: "GET",
+              url: "http://www.uruapanmovil.com/nta_server/article_list_add_promociones.php?id="+ mid +"&limit="+ limit +"",									
+              dataType: "html",
+              crossDomain: true,
+              beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+              success: function(html) {
+              $( ".loading_spinner_all" ).hide();									
+              $('#article_list_promociones ul').append(html);
+              stroll.bind( '#article_list_promociones ul' );
+               processing = false;
+               limit = limit + 10;									
+              },
+              error: function(){
+                $('#article_list_promociones').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+              }
+            });
+          }
+        } 
+      });	
+    },
+    error: function(){
+      $('#article_list_promociones').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+      }
+      });	
+    });
+  });
+  </script> 
+  <!-- Cargar el listado de las noticias-->
+  <script type="text/javascript">		
+   $(document).ready(function () {
+      $("#linkListadoNoticias").click(function (){               
+          var mid = 3;						          		
+          $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com./nta_server/article_list_noticias.php?id="+ mid +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          $('#article_list_noticias').html(data);					
+          stroll.bind( '#article_list_noticias ul' );
+          var processing;
+          var limit = 10;
+          window.sessionStorage.setItem("dbe",'start');					
+          $('#article_list_noticias ul').scroll(function() {
+            if (processing)
+              return false;
+            if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+              if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                  var end = window.sessionStorage.getItem("dbe"); 
+              } else {
+                  var end = 'start';	
+              }
+              if (end == 'start'){ 
+                processing = true;
+                $.ajax({
+                  type: "GET",
+                  url: "http://www.uruapanmovil.com/nta_server/article_list_add_noticias.php?id="+ mid +"&limit="+ limit +"",									
+                  dataType: "html",
+                  crossDomain: true,
+                  beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                  success: function(html) {
+                    $( ".loading_spinner_all" ).hide();									
+                    $('#article_list_noticias ul').append(html);
+                    stroll.bind( '#article_list_noticias ul' );
+                     processing = false;
+                     limit = limit + 10;									
+                  },
+                  error: function(){
+                    $('#article_list_noticias').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                  }
+                });
+              }
+            } 
+          });				
+          },
+          error: function(){
+              $('#article_list_noticias').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+          });          
+         });
+       });  
+    </script>
+  <!-- Mostar el listado de los eventos-->
+  <script type="text/javascript">
+  $(document).ready(function () {
+    $("#linkListadoEventos").click(function (){
+    var mid = 4;						
+    $.ajax({
+        type: "GET",
+        url: "http://www.uruapanmovil.com/nta_server/article_list_eventos.php?id="+ mid +"",
+        dataType: "html",
+        crossDomain: true,
+        beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+        success: function(data) {
+        $( ".loading_spinner_all" ).hide();
+        $('#article_list_eventos').html(data);					
+        stroll.bind( '#article_list_eventos ul' );
+        var processing;
+        var limit = 10;
+        window.sessionStorage.setItem("dbe",'start');					
+        $('#article_list_eventos ul').scroll(function() {
+        if (processing)
+          return false;
+        if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) {
+          if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+          } else {
+              var end = 'start';	
+          }
+          if (end == 'start'){ 
+            processing = true;
+            $.ajax({
+                type: "GET",
+                url: "http://www.uruapanmovil.com/nta_server/article_list_add_eventos.php?id="+ mid +"&limit="+ limit +"",									
+                dataType: "html",
+                crossDomain: true,
+                beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                success: function(html) {
+                $( ".loading_spinner_all" ).hide();									
+                $('#article_list_eventos ul').append(html);
+                stroll.bind( '#article_list_eventos ul' );
+                 processing = false;
+                 limit = limit + 10;									
+                },
+                error: function(){
+                  $('#article_list_eventos').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet..</div>').delay(10000).slideUp("slow").hide(100);
+                }
+              });
+            }
+         } 
+      });				
+      },
+      error: function(){
+        $('#article_list_eventos').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+      }
+      });
+    });
+  });
+  </script>
+  <!-- Mostrar el listado de turismo -->
+  <script type="text/javascript">
+  $(document).ready(function () {
+    $("#linkListadoTurismo").click(function (){   
+      var mid = 5;				
+      $.ajax({
+      type: "GET",
+      url: "http://www.uruapanmovil.com/nta_server/article_list_turismo.php?id="+ mid +"",
+      dataType: "html",
+      crossDomain: true,
+      beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+      success: function(data) {
+      $( ".loading_spinner_all" ).hide();
+      $('#article_list_turismo').html(data);					
+      stroll.bind( '#article_list_turismo ul' );
+      var processing;
+      var limit = 10;
+      window.sessionStorage.setItem("dbe",'start');					
+      $('#article_list_turismo ul').scroll(function() {
+          if (processing)
+          return false;
+          if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+            if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+            } else {
+              var end = 'start';	
+            }
+            if (end == 'start'){ 
+            processing = true;
+            $.ajax({
+              type: "GET",
+              url: "http://www.uruapanmovil.com/nta_server/article_list_add_turismo.php?id="+ mid +"&limit="+ limit +"",									
+              dataType: "html",
+              crossDomain: true,
+              beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+              success: function(html) {
+                $( ".loading_spinner_all" ).hide();									
+                $('#article_list_turismo ul').append(html);
+                stroll.bind( '#article_list_turismo ul' );
+                 processing = false;
+                 limit = limit + 10;									
+                },
+                error: function(){
+                  $('#article_list_turismo').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+              }
+            });
+            }
+          } 
+      });																			
+      },
+      error: function(){
+          $('#article_list_turismo').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+      }
+      });
+    });
+  });
+  </script>
+  <!-- Mostar el listado de taxis -->
+  <script type="text/javascript">
+  $(document).ready(function () { 
+    $("#linkListadoTaxis").click(function (){
+    var mid = 6;						
+    $.ajax({
+      type: "GET",
+      url: "http://www.uruapanmovil.com/nta_server/article_list_taxis.php?id="+ mid +"",
+      dataType: "html",
+      crossDomain: true,
+      beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+      success: function(data) {
+        $( ".loading_spinner_all" ).hide();
+        $('#article_list_taxis').html(data);					
+        stroll.bind( '#article_list_taxis ul' );
+        var processing;
+        var limit = 10;
+        window.sessionStorage.setItem("dbe",'start');					
+        $('#article_list_taxis ul').scroll(function() {
+          if (processing)
+          return false;
+          if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+            if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+            } else {
+              var end = 'start';	
+            }
+            if (end == 'start'){ 
+              processing = true;
+              $.ajax({
+                type: "GET",
+                url: "http://www.uruapanmovil.com/nta_server/article_list_add_taxis.php?id="+ mid +"&limit="+ limit +"",									
+                dataType: "html",
+                crossDomain: true,
+                beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                success: function(html) {
+                $( ".loading_spinner_all" ).hide();									
+                $('#article_list_taxis ul').append(html);
+                stroll.bind( '#article_list_taxis ul' );
+                 processing = false;
+                 limit = limit + 10;									
+                },
+                error: function(){
+                    $('#article_list_taxis').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                }
+              });
+            }
+          } 
+        });				
+        },
+        error: function(){
+            $('#article_list_taxis').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+        }
+      });
+    });
+  });  
+  </script>
+  <!-- Mostrar el listado de autobuses -->
+  <script type="text/javascript">
+      $(document).ready(function () { 
+        $("#linkListadoAutobuses").click(function (){
+        var mid = 41;						
+        $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/article_list_autobuses.php?id="+ mid +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          $('#article_list_autobuses').html(data);					
+          stroll.bind( '#article_list_autobuses ul' );
+          var processing;
+          var limit = 10;
+          window.sessionStorage.setItem("dbe",'start');					
+          $('#article_list_autobuses ul').scroll(function() {
+            if (processing)
+            return false;
+            if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+              if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                var end = window.sessionStorage.getItem("dbe"); 
+              } else {
+                var end = 'start';	
+              }
+              if (end == 'start'){ 
+                processing = true;
+                $.ajax({
+                  type: "GET",
+                  url: "http://www.uruapanmovil.com/nta_server/article_list_add_autobuses.php?id="+ mid +"&limit="+ limit +"",									
+                  dataType: "html",
+                  crossDomain: true,
+                  beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                  success: function(html) {
+                    $( ".loading_spinner_all" ).hide();									
+                    $('#article_list_autobuses ul').append(html);
+                    stroll.bind( '#article_list_autobuses ul' );
+                    processing = false;
+                    limit = limit + 10;									
+                  },
+                  error: function(){
+                    $('#article_list_autobuses').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                  }
+                });
+              }
+            } 
+          });				
+          },
+          error: function(){
+            $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+        });
+      });
+    });  
+    </script>
+  <!-- Mostar el listado de los aviones -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoAviones").click(function (){        
+        var mid = 42;						
+        $.ajax({
+        type: "GET",
+        url: "http://www.uruapanmovil.com/nta_server/article_list_aviones.php?id="+ mid +"",
+        dataType: "html",
+        crossDomain: true,
+        beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+        success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          $('#article_list_aviones').html(data);					
+          stroll.bind( '#article_list_aviones ul' );
+          var processing;
+          var limit = 10;
+          window.sessionStorage.setItem("dbe",'start');					
+          $('#article_list_aviones ul').scroll(function() {
+            if (processing)
+            return false;
+            if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+              if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                var end = window.sessionStorage.getItem("dbe"); 
+              } else {
+                var end = 'start';	
+              }
+              if (end == 'start'){ 
+                processing = true;
+                $.ajax({
+                  type: "GET",
+                  url: "http://www.uruapanmovil.com/nta_server/article_list_add_aviones.php?id="+ mid +"&limit="+ limit +"",									
+                  dataType: "html",
+                  crossDomain: true,
+                  beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                  success: function(html) {
+                    $( ".loading_spinner_all" ).hide();									
+                    $('#article_list_aviones ul').append(html);
+                    stroll.bind( '#article_list_aviones ul' );
+                   processing = false;
+                   limit = limit + 10;									
+                  },
+                  error: function(){
+                    $('#article_list_aviones').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                  }
+                });
+              }
+            } 
+          });				
+        },
+        error: function(){
+          $('#article_list_aviones').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+        }
+        });
+      });
+    });
+  </script>
+  <!-- Mostrar el listado de las emergencias -->
+  <script type="text/javascript">
+      $(document).ready(function () { 
+        $("#linkListadoEmergencias").click(function (){
+          var mid = 7;									
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/article_list_emergencias.php?id="+ mid +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+            $( ".loading_spinner_all" ).hide();
+            $('#article_list_emergencias').html(data);					
+            stroll.bind( '#article_list_emergencias ul' );
+            var processing;
+            var limit = 10;
+            window.sessionStorage.setItem("dbe",'start');					
+            $('#article_list_emergencias ul').scroll(function() {						
+              if (processing)
+              return false;
+              if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+                if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                  var end = window.sessionStorage.getItem("dbe"); 
+                } else {
+                  var end = 'start';	
+                }
+                if (end == 'start'){ 	
+                  processing = true;
+                  $.ajax({
+                    type: "GET",
+                    url: "http://www.uruapanmovil.com/nta_server/article_list_add_emergencias.php?id="+ mid +"&limit="+ limit +"",									
+                    dataType: "html",
+                    crossDomain: true,
+                    beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                    success: function(html) {
+                      $( ".loading_spinner_all" ).hide();									
+                      $('#article_list_emergencias ul').append(html);
+                      stroll.bind( '#article_list_emergencias ul' );
+                      processing = false;
+                      limit = limit + 10;																						
+                    },
+                    error: function(){
+                      $('#article_list_emergencias').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                    }
+                  });
+                }
+              } 
+            });																			
+            },
+            error: function(){
+              $('#article_list_emergencias').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });
+      });     
+    </script>
+  <!-- Mostar el listado de gobierno -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoGobierno").click(function (){    
+        var mid = 9;						
+        $.ajax({
+        type: "GET",
+        url: "http://www.uruapanmovil.com/nta_server/article_list_gobierno.php?id="+ mid +"",
+        dataType: "html",
+        crossDomain: true,
+        beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+        success: function(data) {
+        $( ".loading_spinner_all" ).hide();
+        $('#article_list_gobierno').html(data);					
+        stroll.bind( '#article_list_gobierno ul' );
+        var processing;
+        var limit = 10;
+        window.sessionStorage.setItem("dbe",'start');					
+        $('#article_list_gobierno ul').scroll(function() {
+          if (processing)
+            return false;
+          if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) {
+            if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+            } else {
+              var end = 'start';	
+            }
+            if (end == 'start'){ 
+              processing = true;
+              $.ajax({
+                type: "GET",
+                url: "http://www.uruapanmovil.com/nta_server/article_list_add_gobierno.php?id="+ mid +"&limit="+ limit +"",									
+                dataType: "html",
+                crossDomain: true,
+                beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                success: function(html) {
+                  $( ".loading_spinner_all" ).hide();									
+                  $('#article_list_gobierno ul').append(html);
+                  stroll.bind( '#article_list_gobierno ul' );
+                  processing = false;
+                  limit = limit + 10;									
+                  },
+                  error: function(){
+                    $('#article_list_gobierno').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                }
+              });
+            }
+          } 
+        });				
+        },
+        error: function(){
+          $('#article_list_gobierno').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+        }
+        });
+      });
+    });
+  </script>
+  <!-- Mostrar el listado de personas extraviadas -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoPersonasExtraviadas").click(function (){    
+        var mid = 37;											
+        $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/article_list_personas_extraviadas.php?id="+ mid +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+            $( ".loading_spinner_all" ).hide();
+            $('#article_list_personas_extraviadas').html(data);					
+            stroll.bind( '#article_list_personas_extraviadas ul' );
+            var processing;
+            var limit = 10;
+            window.sessionStorage.setItem("dbe",'start');					
+            $('#article_list_personas_extraviadas ul').scroll(function() {
+            if (processing)
+            return false;																			
+              if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 																									
+                if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                  var end = window.sessionStorage.getItem("dbe"); 
+                } else {
+                  var end = 'start';	
+                }								
+                if (end == 'start'){ 									
+                  processing = true;								
+                  $.ajax({
+                    type: "GET",
+                    url: "http://www.uruapanmovil.com/nta_server/article_list_add_personas_extraviadas.php?id="+ mid +"&limit="+ limit +"",									
+                    dataType: "html",
+                    crossDomain: true,
+                    beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                    success: function(html) {									
+                    $( ".loading_spinner_all" ).hide();									
+                    $('#article_list_personas_extraviadas ul').append(html);
+                    stroll.bind( '#article_list_personas_extraviadas ul' );
+                     processing = false;
+                     limit = limit + 10;																										
+                    },
+                    error: function(){
+                      $('#article_list_personas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                    }
+                  });
+                }
+              } 
+            });				
+          },
+          error: function(){
+            $('#article_list_personas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+        });			
+      });			
+    });			
+  </script>
+  <!-- Mostrar el listado de mascotas encontradas -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoMascotasEncontradas").click(function (){
+        var mid = 39;						
+        $.ajax({
+        type: "GET",
+        url: "http://www.uruapanmovil.com/nta_server/article_list_mascotas_encontradas.php?id="+ mid +"",
+        dataType: "html",
+        crossDomain: true,
+        beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+        success: function(data) {
+        $( ".loading_spinner_all" ).hide();
+        $('#article_list_mascotas_encontrada').html(data);					
+        stroll.bind( '#article_list_mascotas_encontrada ul' );
+        var processing;
+        var limit = 10;
+        window.sessionStorage.setItem("dbe",'start');					
+        $('#article_list_mascotas_encontrada ul').scroll(function() {
+          if (processing)
+          return false;
+          if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+            if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+            } else {
+              var end = 'start';  
+            }
+            if (end == 'start'){ 
+              processing = true;
+              $.ajax({
+                type: "GET",
+                url: "http://www.uruapanmovil.com/nta_server/article_list_add_mascotas_encontradas.php?id="+ mid +"&limit="+ limit +"",									
+                dataType: "html",
+                crossDomain: true,
+                beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                success: function(html) {
+                  $( ".loading_spinner_all" ).hide();									
+                  $('#article_list_mascotas_encontrada ul').append(html);
+                  stroll.bind( '#article_list_mascotas_encontrada ul' );
+                   processing = false;
+                   limit = limit + 10;									
+                },
+                error: function(){
+                  $('#article_list_mascotas_encontrada').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                }
+              });
+            }
+          } 
+        });				
+        },
+        error: function(){
+            $('#article_list_mascotas_encontrada').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+        }
+        });			
+      });			
+    });			
+  </script>
+  <!-- Mostrar el listado de mascotas extraviadas -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoMascotasExtraviadas").click(function (){
+      var mid = 38;						
+      $.ajax({
+      type: "GET",
+      url: "http://www.uruapanmovil.com/nta_server/article_list_mascotas_extraviadas.php?id="+ mid +"",
+      dataType: "html",
+      crossDomain: true,
+      beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+      success: function(data) {
+      $( ".loading_spinner_all" ).hide();
+      $('#article_js_mascotas_extraviadas').html(data);					
+      stroll.bind( '#article_js_mascotas_extraviadas ul' );
+      var processing;
+      var limit = 10;
+      window.sessionStorage.setItem("dbe",'start');					
+      $('#article_js_mascotas_extraviadas ul').scroll(function() {
+        if (processing)
+          return false;
+        if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+            if(window.sessionStorage.getItem("dbe") == 'end'){ 
+              var end = window.sessionStorage.getItem("dbe"); 
+            } else {
+              var end = 'start';	
+            }
+            if (end == 'start'){ 
+            processing = true;
+            $.ajax({
+                type: "GET",
+                url: "http://www.uruapanmovil.com/nta_server/article_list_add_mascotas_extraviadas.php?id="+ mid +"&limit="+ limit +"",									
+                dataType: "html",
+                crossDomain: true,
+                beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                success: function(html) {
+                  $( ".loading_spinner_all" ).hide();									
+                  $('#article_js_mascotas_extraviadas ul').append(html);
+                  stroll.bind( '#article_js_mascotas_extraviadas ul' );
+                  processing = false;
+                  limit = limit + 10;									
+                },
+                error: function(){
+                    $('#article_js_mascotas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+                }
+            });
+            }
+          } 
+        });				
+        },
+        error: function(){
+          $('#article_js_mascotas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+        }
+        });			
+      });			
+    });			
+  </script>
+  <!-- Mostrar el listado de mascotas en adopción -->
+  <script type="text/javascript">
+    $(document).ready(function () { 
+      $("#linkListadoMascotasAdopcion").click(function (){  
+        var mid = 40;						
+        $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/article_list_mascotas_adopcion.php?id="+ mid +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          $('#article_list_mascotas_adopcion').html(data);					
+          stroll.bind( '#article_list_mascotas_adopcion ul' );
+          var processing;
+          var limit = 10;
+          window.sessionStorage.setItem("dbe",'start');					
+          $('#article_list_mascotas_adopcion ul').scroll(function() {
+            if (processing)
+              return false;
+            if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 										
+              if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                var end = window.sessionStorage.getItem("dbe"); 
+              } else {
+                var end = 'start';	
+              }
+              if (end == 'start'){ 
+                processing = true;
+                $.ajax({
+                  type: "GET",
+                  url: "http://www.uruapanmovil.com/nta_server/article_list_add_mascotas_adopcion.php?id="+ mid +"&limit="+ limit +"",									
+                  dataType: "html",
+                  crossDomain: true,
+                  beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                  success: function(html) {
+                  $( ".loading_spinner_all" ).hide();									
+                  $('#article_list_mascotas_adopcion ul').append(html);
+                  stroll.bind( '#article_list_mascotas_adopcion ul' );
+                   processing = false;
+                   limit = limit + 10;									
+                  },
+                  error: function(){
+                    $('#article_list_mascotas_adopcion').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+                  }
+                });
+              }
+            } 
+          });				
+          },
+          error: function(){
+            $('#article_list_mascotas_adopcion').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+        });			
+      });			
+    });			
+  </script> 
+  <!-- Aplicación de FastClick -->
+  <script type="application/javascript">
+    window.addEventListener('load', function () {
+          FastClick.attach(document.body);
+    }, false);
+  </script> 
+</head> 
+<body onLoad="quitarSpinner();">
+  <div data-role="page" id="inicio" >
+    <center>
+      <div class="logo"></div>                        
+    </center>
+    <center>
+      <div class="contsearch">                   
+        <input id="autocomplete-input" onKeyUp="MostrarHome()"  data-type="search" placeholder="Buscar...">
+      </div>    
+    </center>
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+    <div id="article_list">
+      <script type="text/javascript"> 
+        $("body").delegate("#regresarDetalleListadoPromociones, #regresarListadoPromociones, #inicioPromociones", "click" ,function () { 
+          $('.article_js_promociones').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+
+        $("body").delegate("#regresarDetalleListadoNoticias, #regresarListadoNoticias, #inicioNoticias", "click" ,function () { 	         
+          $('.article_js_noticias').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+               
+       $("body").delegate("#regresarDetalleListadoEventos, #regresarListadoEventos, #inicioEventos", "click" ,function () { 	                   
+          $('.article_js_eventos').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoTurismo, #regresarListadoTurismo, #inicioTurismo", "click" ,function () {          
+          $('.article_js_turismo').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoTaxis, #regresarListadoTaxis, #inicioTaxis", "click" ,function () {           
+          $('.article_js_taxis').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoAutobuses, #regresarListadoAutobuses, #inicioAutobuses", "click" ,function () { 
+          $('.article_js_autobuses').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoEmergencias, #regresarListadoEmergencias, #inicioEmergencias", "click" ,function () {
+          $('.article_js_emergencias').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoGobierno, #regresarListadoGobierno, #inicioGobierno", "click" ,function () {           
+          $('.article_js_gobierno').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoPersonasExtraviadas, #regresarListadoPersonasExtraviadas, #inicioPersonasExtraviadas", "click" ,function () {           
+          $('.article_js_personas_extaviadas').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoMascotasEncontradas, #regresarListadoMascotasEncontradas, #iniciMascotasEncontradas", "click" ,function () {           
+          $('.article_js_mascotas_encontradas').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+                           
+        $("body").delegate("#regresarDetalleListadoMascotasExtraviadas, #regresarListadoMascotasExtraviadas, #iniciMascotasExtraviadas", "click" ,function () {          
+          $('.article_js_mascotas_extraviadas').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+        $("body").delegate("#regresarDetalleListadoMascotasAdopcion, #regresarListadoMascotasAdopcion, #iniciMascotasAdopcion", "click" ,function () {          
+          $('.article_js_mascotas_adopcion').html("<div class='loading_spinner_all'><img src='images/loading.gif' width='128' height='128'></div>");      
+        });
+        
+      </script><!-- Limpieza de las capas de un detalle hacia un listado --> 
+      <script>
+        function busqueda() {
+          function getQueryVariable(variable){
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+          }
+          return(false);
+        }
+
+        var buscar = $("#autocomplete-input").val();
+        //var mid = getQueryVariable("id");           
+        //var buscar = document.getElementById("autocomplete-input");
+        //buscar = "Zoe";         
+        $( ".loading_spinner_all" ).show();       
+        $.ajax({
+        type: "GET",
+        url: "http://www.uruapanmovil.com/nta_server/busqueda.php?buscar="+ buscar +"",
+        dataType: "html",
+        crossDomain: true,
+        beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+        success: function(data) {           
+        $( ".loading_spinner_all" ).hide();
+        $( ".Botones" ).hide();
+        $( ".logo" ).hide();
+        $( "#article_list" ).show();
+        $('#article_list').html(data);          
+        stroll.bind( '#article_list ul' );
+        var processing;
+        var limit = 10;
+        window.sessionStorage.setItem("dbe",'start');         
+        $('#article_list ul').scroll(function() {
+          if (processing)
+            return false;
+              if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) {                                
+                if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                  var end = window.sessionStorage.getItem("dbe"); 
+                } else {
+                  var end = 'start';  
+                }
+                if (end == 'start'){  
+                processing = true;
+                $.ajax({
+                  type: "GET",
+                  url: "http://www.uruapanmovil.com/nta_server/busqueda.php?buscar="+  +"&limit="+ limit +"",                 
+                  dataType: "html",
+                  crossDomain: true,
+                  beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+                  success: function(html) {
+                    //alert("Esta alerta solo se muestra cuando va a cargar?");
+                    $( ".loading_spinner_all" ).hide();                 
+                    //$('#article_list ul').append(html);
+                    //stroll.bind( '#article_list ul' );
+                     //processing = false;
+                     //limit = limit + 10;
+                     $("#MensajeCarga").html("<p align='center'>No hay más resultados para mostrar</p>. <p align='center'>Gracias por usar Uruapan Móvil</p>");
+                  },
+                  error: function(){
+                    $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet o red móvil...</div>').delay(10000).slideUp("slow").hide(100);
+                  }
+                });
+                }
+              } 
+            });       
+            },
+            error: function(){
+                $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet o red móvil...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+            });
+          }
+      </script><!-- Método de búsqueda dentro de sección principal (Home) -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_promociones']", "click" ,function (event) { 
+            function getQueryVariable(variable)
+            {
+              var url_completa = event.currentTarget.hash; 
+              url_completa = String(url_completa);             
+              var parte1 = url_completa.split("?");
+              var query = String(parte1[1]);    
+              var vars = query.split("&");
+              for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if(pair[0] == variable){return pair[1];}
+              }
+              return(false);
+            }
+
+            var mid = getQueryVariable("id");
+            var mart = getQueryVariable("art");
+            localStorage.setItem("art",mart);
+            $('.logo_small_article').append('<a href="#seccionListadoPromociones?id='+ mid +'" class="back" id="regresarListadoPromociones" data-transition="none"></a>');
+              $.ajax({
+              type: "GET",
+              url: "http://www.uruapanmovil.com/nta_server/promocion.php?id="+ mid +"&art="+ mart +"",
+              dataType: "html",
+              crossDomain: true,
+              beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+              success: function(data) {
+              $( ".loading_spinner_all" ).hide();        
+              $('.article_js_promociones').html(data);
+              },
+              error: function(){
+                  $('.article_js_promociones').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+              }
+           });   
+         });
+      </script><!-- Mostrar el detalle de una promocion -->
+      <script type="text/javascript">
+      $("body").delegate("a[id$='link_noticias']", "click" ,function (event) {         
+        function getQueryVariable(variable)
+        {
+          var url_completa = event.currentTarget.hash;
+          url_completa = String(url_completa);
+          var parte1 = url_completa.split("?");
+          var query = String(parte1[1]);
+          var vars = query.split("&");
+          for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+          }
+          return(false);
+        }
+        var mid = getQueryVariable("id");
+        var mart = getQueryVariable("art");						
+        $('.logo_small_article').append('<a href="#seccionListadoNoticias?id='+ mid +'" id="regresarListadoNoticias" data-transition="none" class="back"></a>');
+          $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/noticia.php?id="+ mid +"&art="+ mart +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          //$text=utf8_decode(data);
+          $('.article_js_noticias').html(data);
+          },
+          error: function(){						
+              $('.article_js_noticias').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+        });
+      });    
+    </script><!-- Mostrar el detalle de una noticia -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_eventos']", "click" ,function (event) {
+        function getQueryVariable(variable)
+        {
+          var url_completa = event.currentTarget.hash;
+          url_completa = String(url_completa);
+          var parte1 = url_completa.split("?");
+          var query = String(parte1[1]);
+          var vars = query.split("&");
+          for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+          }
+          return(false);
+        }
+        var mid = getQueryVariable("id");
+        var mart = getQueryVariable("art");        
+        localStorage.setItem("art",mart);
+        $('.logo_small_article').append('<a href="#seccionListadoEventos?id='+ mid +'" id="regresarListadoEventos" data-transition="none"  class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/evento.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+              $( ".loading_spinner_all" ).hide();        
+              $('.article_js_eventos').html(data);
+            },
+            error: function(){						
+              $('.article_js_eventos').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });  
+      </script><!-- Mostrar el detalle de un evento -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_turismo']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+             var pair = vars[i].split("=");
+             if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoTurismo?id='+ mid +'" id="regresarListadoTurismo" data-transition="none" class="back"></a>');
+          $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/turismo.php?id="+ mid +"&art="+ mart +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+            $( ".loading_spinner_all" ).hide();          
+            $('.article_js_turismo').html(data);
+            },
+            error: function(){						
+              $('.article_js_turismo').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });
+      </script><!-- Mostrar el detalle de turismo -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_taxis']", "click" ,function (event) {           
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+             var pair = vars[i].split("=");
+             if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");         
+          localStorage.setItem("art",mart);
+          alert(mart);
+          $('.logo_small_article').append('<a href="#seccionListadoTaxis?id='+ mid +'" id="regresarListadoTaxis" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/taxi.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+              $( ".loading_spinner_all" ).hide();              
+              $('.article_js_taxis').html(data);
+            },
+            error: function(){						
+              $('.article_js_taxis').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });  
+      </script><!-- Mostrar el detalle de taxis -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_autobuses']", "click" ,function (event) {     
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoAutobuses?id='+ mid +'" id="regresarListadoAutobuses" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/autobuses.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+
+            $( ".loading_spinner_all" ).hide();
+            //$text=utf8_decode(data);
+            $('.article_js_autobuses').html(data);
+
+            },
+            error: function(){						
+                $('.article_js_autobuses').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });  
+      </script><!-- Mostrar el detalle de los autobuses -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_aviones']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+             var pair = vars[i].split("=");
+             if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }			
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");						
+          localStorage.setItem("art",mart);	
+          $('.logo_small_article').append('<a href="#seccionListadoAviones?id='+ mid +'" id="regresarListadoAviones" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/aviones.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+              $( ".loading_spinner_all" ).hide();
+              $('.article_js_aviones').html(data);																
+            },
+            error: function(){						
+              $('.article_js_aviones').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });
+        });
+      </script><!-- Mostrar el detalle de los aviones -->
+      <script type="text/javascript">
+      $("body").delegate("a[id$='link_emergencias']", "click" ,function (event) {
+        function getQueryVariable(variable) {
+          var url_completa = event.currentTarget.hash;
+          url_completa = String(url_completa);
+          var parte1 = url_completa.split("?");
+          var query = String(parte1[1]);
+          var vars = query.split("&");
+          for (var i=0;i<vars.length;i++) {
+             var pair = vars[i].split("=");
+             if(pair[0] == variable){return pair[1];}
+          }
+          return(false);
+        }
+        var mid = getQueryVariable("id");
+        var mart = getQueryVariable("art");						
+        localStorage.setItem("art",mart);
+        $('.logo_small_article').append('<a href="#seccionListadoEmergencias?id='+ mid +'" id="regresarListadoEmergencias" data-transition="none" class="back"></a>');
+        $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/emergencia.php?id="+ mid +"&art="+ mart +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();
+          $('.article_js_emergencias').html(data);
+          },
+          error: function(){						
+            $('.article_js_emergencias').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+        });
+      });  
+    </script><!-- Mostrar el detalle de las emergencias -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_gobierno']", "click" ,function (event) {  
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoGobierno?id='+ mid +'" id="regresarListadoGobierno" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/gobierno.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {	
+            $( ".loading_spinner_all" ).hide();
+            $('.article_js_gobierno').html(data);								
+            },
+            error: function(){						
+              $('.article_js_gobierno').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });			
+        });			
+      </script><!-- Mostrar el detalle de gobierno -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_personas_extraviadas']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoPersonasExtraviadas?id='+ mid +'" id="regresarListadoPersonasExtraviadas" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/personasExtraviadas.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+
+            $( ".loading_spinner_all" ).hide();
+            //$text=utf8_decode(data);
+            $('.article_js_personas_extraviadas').html(data);
+
+            },
+            error: function(){						
+                $('.article_js_personas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });			
+        });			
+      </script><!-- Mostrar el detalle de personas extraviadas -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_mascotas_encontradas']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");						
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoMascotasEncontradas?id='+ mid +'" id="regresarListadoMascotasEncontradas" data-transition="none" class="back"></a>');
+          $.ajax({
+          type: "GET",
+          url: "http://www.uruapanmovil.com/nta_server/mascotasEncontradas.php?id="+ mid +"&art="+ mart +"",
+          dataType: "html",
+          crossDomain: true,
+          beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+          success: function(data) {
+          $( ".loading_spinner_all" ).hide();            
+          $('.article_js_mascotas_encontradas').html(data);
+          },
+          error: function(){						
+            $('.article_js_mascotas_encontradas').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+          }
+          });			
+        });			
+      </script><!-- Mostrar el detalle de mascotas encontradas -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_mascotas_extraviadas']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");						
+          localStorage.setItem("art",mart);
+          $('.logo_small_article').append('<a href="#seccionListadoMascotasExtraviadas?id='+ mid +'" id="regresarListadoMascotasExtraviadas" data-transition="none" class="back"></a>');
+            $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/mascotasExtraviadas.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+            $( ".loading_spinner_all" ).hide();
+            $('.article_js_mascotas_extraviadas').html(data);
+            },
+            error: function(){						
+              $('.article_js_mascotas_extraviadas').slideDown("slow").show(100).html('<div class="ce">Error: Revise su conexión a internet...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });			
+        });			
+      </script><!-- Mostrar el detalle de mascotas extraviadas -->
+      <script type="text/javascript">
+        $("body").delegate("a[id$='link_mascotas_adopcion']", "click" ,function (event) {
+          function getQueryVariable(variable)
+          {
+            var url_completa = event.currentTarget.hash;
+            url_completa = String(url_completa);
+            var parte1 = url_completa.split("?");
+            var query = String(parte1[1]);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+            }
+            return(false);
+          }
+          var mid = getQueryVariable("id");
+          var mart = getQueryVariable("art");						
+          localStorage.setItem("art",mart);	
+          $('.logo_small_article').append('<a href="#seccionListadoMascotasAdopcion?id='+ mid +'" id="regresarListadoMascotasAdopcion" data-transition="none" class="back"></a>');
+          $.ajax({
+            type: "GET",
+            url: "http://www.uruapanmovil.com/nta_server/mascotasAdopcion.php?id="+ mid +"&art="+ mart +"",
+            dataType: "html",
+            crossDomain: true,
+            beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+            success: function(data) {
+
+            $( ".loading_spinner_all" ).hide();
+            //$text=utf8_decode(data);
+            $('.article_js_mascotas_adopcion').html(data);
+
+            },
+            error: function(){						
+                $('.article_js_mascotas_adopcion').slideDown("slow").show(100).html('<div class="ce">Error: Problema de conexión...</div>').delay(10000).slideUp("slow").hide(100);
+            }
+          });			
+        });			
+      </script><!-- Mostrar el detalle de mascotas en adopción -->
+    </div> 
+    <div id="Botones" class="Botones">
+      <center>
+        <div class="buttonList large">            
+          <a class="leftTop" id="linkListadoEmpresas" data-transition="slide" href="#seccionListadoEmpresas" ></a> <!--   -->
+          <a class="rightTop" id="linkListadoPromociones" data-transition="slide" href="#seccionListadoPromociones"></a>                   
+          <a class="leftMiddle" id="linkListadoNoticias" data-transition="slide" href="#seccionListadoNoticias"></a>          
+          <a class="rightMiddle" id="linkListadoEventos" data-transition="slide" href="#seccionListadoEventos"></a> 
+          <a class="leftBottom" id="linkListadoTurismo"  data-transition="slide" href="#seccionListadoTurismo"></a>         
+          <a class="rightBottom"  href="#utiles"></a>
+        </div>            
+      </center>
+    </div>
+  </div><!-- fin data-role="page" -->
+<!-- ***********************************************************SECCION DE PROMOCIONES *************************************************************-->
+<section data-role="page" id="seccionListadoPromociones" data-add-back-btn="false" data-theme="a">
+  <div data-role="content">
+    <div class="lst"> 
+      <div class="header_promociones">
+        <a href="#inicio" class="back"></a>
+        <a href="#inicio" class="bm"></a>    
+      </div>
+    </div>
+    <div class="cth"></div>
+    <div id="article_list_promociones">              
+      <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+    </div>
+  </div><!-- Fin datarole = content-->
+</section>
+<!-- ***********************************************************SECCION DETALLE DE PROMOCIONES *****************************************************-->
+<section data-role="page" id="seccion_article_promociones" data-add-back-btn="false" data-theme="a">	    
+  <div data-role="content">
+    <div class="lst"> 
+      <div class="logo_small_article">               
+        <a href="#seccionListadoPromociones" class="back"></a>        
+        <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia()); " class="share"></a>
+        <a href="#inicio" class="home" id ="inicioPromociones" data-transition="none"></a>
+      </div>
+    </div>
+  <div class="cth"></div>		
+    <div class="article_js_promociones">
+      <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+    </div>
+  </div>
+</section>
+<!-- ***********************************************************SECCION NOTICIAS  ******************************************************************-->
+<section data-role="page" id="seccionListadoNoticias" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_noticias">
+      <a href="#inicio" class="back"></a>
+      <a href="#inicio" class="bm"></a>
+      <!-- <a href="index.html" class="home"></a> -->
+    </div>
+  </div>
+  <div class="cth"></div>  
+  <div id="article_list_noticias">		              		                 
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>    	        
+  </div> 
+</section>
+<!-- ***********************************************************SECCION DETALLE DE NOTICIAS ********************************************************-->
+<section data-role="page" id="seccion_article_noticias" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+      <div class="logo_small_article">               
+          <a href="#seccionListadoNoticias" id = "regresarListadoNoticias" class="back"></a>       
+          <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+          <a href="#inicio" class="home"></a>
+      </div>
+  </div>
+  <div class="cth"></div>		
+  <div class="article_js_noticias">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  </div>
+</section>
+<!-- ***********************************************************SECCION DE EVENTOS *****************************************************************-->
+<section data-role="page" id="seccionListadoEventos" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_eventos">
+      <a href="#inicio" class="back"></a>
+      <a href="#inicio" class="bm"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_eventos">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>  	        
+  </div> 
+</section>
+<!-- ***********************************************************SECCION DETALLE DE EVENTOS *********************************************************-->
+<section data-role="page" id="seccion_article_eventos" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoEventos" class="back"></a>          
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_eventos">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION EMPRESAS*************************************************************-->
+<section data-role="page" id="seccionListadoEmpresas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_empresas">
+      <a href="#inicio" class="back"></a>
+    </div>
+  </div>
+  <br /><br />
+  <center>
+    <div class="contsearch">    
+      <form class="ui-filterable">
+        <input id="autocomplete-input" data-type="search" placeholder="Buscar...">
+      </form>
+    </div> 
+  </center>     
+  <div data-role="content">
+    <ul>
+      <li>
+        <a href="article_list.html?id=12" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaA.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=13" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaB.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=14" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaC.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=15" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaD.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=16" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaE.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=17" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaF.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=18" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaG.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=19" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaH.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=20" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaI.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=21" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaJ.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=22" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaK.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=23" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaL.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=24" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaM.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=25" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaN.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=26" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaO.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=27" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaP.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=28" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaQ.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=29" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaR.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=30" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaS.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=31" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaT.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=32" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaU.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=33" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaV.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=34" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaX.jpg) no-repeat;"></div>
+        </a>
+      </li>   
+      <li>
+        <a href="article_list.html?id=35" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaY.jpg) no-repeat;"></div>
+        </a>
+      </li>
+      <li>
+        <a href="article_list.html?id=36" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/CategoriaZ.jpg) no-repeat;"></div>
+        </a>
+      </li>
+    </ul>
+  </div>    
+</section>
+<!-- ***********************************************************INICIO SECCION TURISMO *************************************************************-->
+<section data-role="page" id="seccionListadoTurismo" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+      <div class="header_turismo">
+          <a href="#inicio" class="back"></a>
+          <a href="#inicio" class="bm"></a>
+          <!-- <a href="index.html" class="home"></a> -->
+      </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_turismo">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>      	        
+  </div> 
+</section>
+<!-- ***********************************************************SECCION DETALLE DE TURISMO *********************************************************-->
+<section data-role="page" id="seccion_article_turismo" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoTurismo" class="back"></a>      
+      <a href="#"  onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_turismo">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION UTILES***************************************************************-->
+<section data-role="page" id="utiles">
+  <div class="lst"> 
+    <div class="header_utiles">
+      <a href="#inicio" class="back"></a>                
+    </div>
+  </div>    
+  <center>
+    <div class="buttonList large">            
+      <a class="leftTopSubmenu" id="linkListadoTrasporte" data-transition="slide" href="#transporte"></a>
+      <a class="rightTopSubmenu" id="linkListadoEmergencias" data-transition="slide" href="#seccionListadoEmergencias"></a>                          
+      <a class="leftMiddleSubmenu" id="linkListadoComunidad" data-transition="slide" href="#comunidad"></a>          
+      <a class="rightMiddleSubmenu" id="linkListadoGobierno" data-transition="slide" href="#seccionListadoGobierno"></a>
+      <a class="contacto" id="linkListadoContacto" data-transition="slide" href="#contacto"></a>                
+    </div>            
+  </center>       
+</section>
+<!-- ***********************************************************INICIO SECCION TRANSPORTE***********************************************************-->
+<section data-role="page" id="transporte">
+  <div class="lst"> 
+    <div class="header_transporte">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>                
+    </div>
+  </div>    
+  <center>
+    <div class="buttonList large">            
+      <a class="leftTopSubmenuTaxis" id="linkListadoTaxis" data-transition="slide" href="#seccionListadoTaxis"></a>
+      <a class="rightTopSubmenuAutobuses" id="linkListadoAutobuses" data-transition="slide" href="#seccionListadoAutobuses"></a>                    
+      <a class="leftMiddleSubmenuAviones" id="linkListadoAviones" data-transition="slide" href="#seccionListadoAviones"></a>                         
+    </div>            
+  </center>       
+</section>
+<!-- ***********************************************************INICIO SECCION TAXIS ***************************************************************-->
+<section data-role="page" id="seccionListadoTaxis" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+      <div class="header_taxis">
+          <a href="#transporte" class="back"></a>
+          <a href="#inicio" class="home"></a>
+      </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_taxis">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>      	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE TAXIS ***********************************************************-->
+<section data-role="page" id="seccion_article_taxis" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoTaxis" class="back"></a>           
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_taxis">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION AUTOBUSES ***********************************************************-->
+<section data-role="page" id="seccionListadoAutobuses" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_autobuses">
+      <a href="#transporte" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_autobuses">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>     	        
+  </div>  
+</section>
+<!-- ***********************************************************SECCION DETALLE DE AUTOBUSES *******************************************************-->
+<section data-role="page" id="seccion_article_autobuses" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoAutobuses" class="back"></a>      
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_autobuses">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div> 
+  </div>  
+</section>
+<!-- ***********************************************************INICIO SECCION AVIONES *************************************************************-->
+<section data-role="page" id="seccionListadoAviones" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_aviones">
+      <a href="#transporte" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_aviones">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>        	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE AVIONES *********************************************************-->
+<section data-role="page" id="seccion_article_aviones" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoAviones" class="back"></a>
+      <!--<a href="index.html" class="share"></a> -->
+      <a href="#" rel="external" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_aviones">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>        
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION GOBIERNO ************************************************************-->
+<section data-role="page" id="seccionListadoGobierno" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_gobierno">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_gobierno">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>       	        
+  </div> 
+</section>
+<!-- ***********************************************************SECCION DETALLE DE GOBIERNO  *******************************************************-->
+<section data-role="page" id="seccion_article_gobierno" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoGobierno" class="back"></a>              
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_gobierno">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>           
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION COMUNIDAD************************************************************-->
+<section data-role="page" id="comunidad">
+  <div class="lst"> 
+    <div class="header_comunidad">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>  
+  <center>
+    <div class="buttonList large2">           
+      <a class="leftTopPE" id="linkListadoPersonasExtraviadas" data-transition="slide" href="#seccionListadoPersonasExtraviadas"></a>
+    </div>  
+    <div class="buttonList large">            
+      <a class="rightTopMA" rel="external" data-transition="slide" href="#mascotas"></a>                                 
+    </div>            
+  </center> 
+</section>
+<!-- ***********************************************************INICIO SECCION PERSONAS EXTRAVIADAS*************************************************-->
+<section data-role="page" id="seccionListadoPersonasExtraviadas" data-add-back-btn="false" data-theme="a">  
+  <div class="lst"> 
+    <div class="header_personas_extraviadas">
+      <a href="#comunidad" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_personas_extraviadas">              
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>     	        
+  </div>  
+</section>
+<!-- ***********************************************************SECCION DETALLE DE PERSONAS EXTRAVIADAS  *******************************************-->
+<section data-role="page" id="seccion_article_personas_extraviadas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoPersonasExtraviadas" class="back"></a>                
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_personas_extraviadas">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>        
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION EMERGENCIAS *********************************************************-->
+<section data-role="page" id="seccionListadoEmergencias" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_emergencias">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_emergencias">      
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>        	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE EMERGENCIAS *****************************************************-->
+<section data-role="page" id="seccion_article_emergencias" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoEmergencias" class="back"></a>
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_emergencias">
+   <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>          
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION MASCOTAS*************************************************************-->
+<section data-role="page" id="mascotas">
+  <div class="lst"> 
+    <div class="header_mascotas">
+        <a href="#comunidad" class="back"></a>
+        <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <br /><br /><br /><br /><br /><br /><br /><br /><br />    
+  <div data-role="content">
+    <ul> 
+      <li>
+        <a id="linkListadoMascotasEncontradas" href="#seccionListadoMascotasEncontradas" data-transition="slide" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/Mascotas_encontradas1.jpg) no-repeat;"></div>
+        </a>
+      </li>  
+      <li>
+        <a id="linkListadoMascotasExtraviadas" href="#seccionListadoMascotasExtraviadas" data-transition="slide" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/Mascotas_extraviadas1.jpg) no-repeat;"></div>
+        </a>
+      </li>       
+      <li>
+        <a id="linkListadoMascotasAdopcion" href="#seccionListadoMascotasAdopcion" class="category_bg">
+          <div class="category_bg_img" style="background:url(images/Mascotas_adopcion.jpg) no-repeat;"></div>
+        </a>
+      </li>          
+    </ul>
+  </div>    
+</section>
+<!-- ***********************************************************INICIO SECCION MASCOTAS ENCONTRADAS ************************************************-->
+<section data-role="page" id="seccionListadoMascotasEncontradas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_mascotas_encontradas">
+      <a href="#mascotas" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_mascotas_encontrada">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>        	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE MASCOTAS ENCONTRADAS ********************************************-->
+<section data-role="page" id="seccion_article_mascotas_encontradas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoMascotasEncontradas" class="back"></a>                
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_mascotas_encontradas">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div> 
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION MASCOTAS EXTRAVIADAS ************************************************-->
+<section data-role="page" id="seccionListadoMascotasExtraviadas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_mascotas_extraviadas">
+      <a href="#mascotas" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_js_mascotas_extraviadas">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>       	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE MASCOTAS EXTRAVIADAS ********************************************-->
+<section data-role="page" id="seccion_article_mascotas_extraviadas" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+        <a href="#seccionListadoMascotasExtraviadas" class="back"></a>        
+        <a href="#" onClick="window.plugins.socialsharing.share('Uruapan Movil te comparte:', null, null, urlNoticia())" class="share"></a>
+        <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_mascotas_extraviadas">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION MASCOTAS EN ADOPCION ************************************************-->
+<section data-role="page" id="seccionListadoMascotasAdopcion" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="header_mascotas_adopcion">
+      <a href="#mascotas" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div id="article_list_mascotas_adopcion">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>       	        
+  </div>
+</section>
+<!-- ***********************************************************SECCION DETALLE DE MASCOTAS EN ADOPCION ********************************************-->
+<section data-role="page" id="seccion_article_mascotas_adopcion" data-add-back-btn="false" data-theme="a">
+  <div class="lst"> 
+    <div class="logo_small_article">               
+      <a href="#seccionListadoMascotasAdopcion" class="back"></a>                
+      <a href="#" onClick="window.plugins.socialsharing.share('Compartido desde la app de Uruapan Móvil:', null, null, urlNoticia())" class="share"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <div class="cth"></div>
+  <div class="article_js_mascotas_adopcion">
+    <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>           
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION CONTACTO*************************************************************-->
+<section data-role="page" id="contacto">
+  <div class="lst"> 
+    <div class="header_contacto">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /> <br /><br /> 
+  <div data-role="content">
+    <center>
+      <p style="color: #666666; font-size:34px; ;">Comunicate con nuestro equipo <br />por cualquiera de los siguientes medios:  </p><br /><br />
+      <a href="#" onClick="openDeviceBrowser ('http://www.interlabs.com.mx')"><img src="images/Website.png" width="200" height="200"></a> &nbsp;&nbsp;&nbsp;
+      <a href="mailto:ventas@interlabs.com.mx"><img border="0" src="images/Email.png" width="200" height="200"></a><br /><br /><br /><br /><br /><br />
+      <p style="color: #666666; font-size:34px; ;">Siguenos en nuestras redes sociales: </p><br />
+      <a href="#" onClick="openDeviceBrowser ('https://www.facebook.com/Uruapan-Movil-206354429698728/')"><img src="images/Facebook.png" width="200" height="200"></a>&nbsp;&nbsp;&nbsp;
+      <a href="#" onClick="openDeviceBrowser ('https://twitter.com/UruapanMovil')"><img src="images/Twitter.png" width="200" height="200"></a>&nbsp;&nbsp;&nbsp;
+      <a href="#" onClick="openDeviceBrowser ('https://www.instagram.com/')"><img src="images/Instagram.png" width="200" height="200"></a>&nbsp;&nbsp;&nbsp;
+      <a href="#" onClick="openDeviceBrowser ('https://www.youtube.com/channel/UCkIVPcx4wlBNJu9lpUHnKmQ/videos')"><img src="images/Youtube.png" width="200" height="200"></a>&nbsp;&nbsp;&nbsp;                                                           
+    </center>
+  </div>
+  <center><BR /><br /><br /><br /><br /><br /><br /><br /><br />
+    <a href="#avisoDePrivacidad" ><p style="color: #999999; font-size:26px; font-weight:100;">AVISO DE PRIVACIDAD</p></a><br />
+    <a href="#terminosyCondiciones" ><p style="color:#999999; font-size:26px; font-weight:100;">TERMINOS Y CONDICONES</p></a><br /><br />
+  </center>   
+</section>
+<!-- ***********************************************************INICIO SECCION AVISO DE PRIVACIDAD**************************************************-->
+<section data-role="page" id="avisoDePrivacidad">
+  <div class="lst"> 
+    <div class="header_avisodp">
+        <a href="#contacto" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  <div data-role="content">
+    <center>
+      <p style="color: #666666; font-size:29px; font-weight:100; text-align:justify; margin-left:50px; margin-right:50px;">Uruapan Movil con domicilio en Alvaro Obregón M.44 L.9 ponemos a su disposición el presente Aviso de Privacidad en cumplimiento a la Ley Federal de Datos Personales en Posesión de los Particulares, su Reglamento y los Lineamientos del Aviso de Privacidad. Uruapan Movil es una empresa que proporciona ofertas y servicios diariamente en diversos comercios en el Estado de Querétaro, Guadalajara y San Luis Potosi, esto lo hace a través de un sistema por internet que vincula herramientas cómo, web, aplicaciones, redes sociales enfocadas a Marketing, Ventas y Publicidad. Como parte de nuestra actividad ofrecemos la información de descuentos en establecimientos y con ello información para contactar servicios negocios empresas y derivados o relacionado con estos mismo. Uruapan Movil recabará sus datos personales con la finalidad de crear cuentas personales, enviarle avisos sobre ofertas, participar en promociones, informar sobre las dinámicas y su participación en ellas, informar sobre las recompensas que ha ganado y como pueden utilizarse. Uruapan Movil está comprometido con la seguridad y privacidad de sus datos personales.
+
+I. Datos Personales que Uruapan Movil podrá recabar Derivado de nuestra operación Uruapan Movil podrá recabar sus datos personales de diversas formas a través de su portal en internet en www.uruapanmovil.com y/o en su aplicación en internet [Uruapan Movil] Uruapan Movil podrá recabar (i) datos de identificación como nombre, domicilio, fecha de nacimiento, correo electrónico, teléfono fijo, teléfono móvil, (ii) datos fiscales como domicilio fiscal y número de Registro Federal de Contribuyentes, así como (iii) datos financieros como información de cuentas bancarias e información de tarjetas de crédito y/o débito y formas de pago. Queda entendido que Uruapan Movil no recabará datos personales sencibles.
+
+II. Finalidades del Tratamiento de Datos Personales Le informamos que sus datos personales serán utilizados con la finalidad de llevar a cabo las operaciones inherentes a nuestro negocio, así como cualquier actividad derivada de la relación jurídica existente o que llegare a existir entre usted y Uruapan Movil la prestación de servicios de publicidad, Marketing, ventas, sistemátizadas llevará a cabo facturación, envío de publicidad y transferencia a terceros de información y publicidad relativa a dichos servicios en la medida en que la transferencia sea necesaria para dar cumplimiento a las finalidades previamente mencionadas.
+Limitación de uso y divulgación de información. Queda entendido que en cualquier momento usted podrá solicitar la cancelación y/o revocación del consentimiento de su suscripción a nuestro boletín de publicidad, solicitando su baja a info@uruapanmovil.com
+
+III. Transferencia de datos personales Uruapan Movil e informa que sus datos personales, serán salvaguardados bajo los estándares de seguridad, garantizando en todo momento la más estricta confidencialidad y privacidad de los mismos, apegándonos en todo momento a lo establecido por la Ley Federal de Datos Personales en Posesión de los Particulares, su Reglamento y los Lineamientos del Aviso de Privacidad. Uruapan Movil no transferirá, compartirá ni transmitirá sus datos personales a terceros sin su consentimiento previo, salvo cuando (i) la transferencia sea necesaria por virtud de un contrato celebrado o por celebrar por su interés, (ii) cuando la transferencia se realice entre nuestras subsidiarias, afiliadas y/o nuestra casa matriz y (iii) cuando la transferencia sea necesaria para el cumplimiento o mantenimiento de una relación jurídica entre usted y Uruapan Movil. negocios S. De R.L. De C.V.
+
+IV. Medidas de seguridad Toda la información y datos personales que usted proporcione a través de los diversos formularios en el portal de internet www.uruapanmovil.com y/o la aplicación […] se encuentran debidamente protegidos por servidores seguros propiedad de UruapanMovil o de terceros profesionales contratados por nosotros bajo diversos protocolos de seguridad a efecto de evitar el acceso no autorizado a sus datos personales y que los mismos sean estrictamente utilizados para los fines descritos en éste Aviso de Privacidad. Sin embargo, y a pesar de contar cada día con herramientas más seguras, la protección de los datos enviados a través de Internet no se puede garantizar al 100%; por lo que una vez recibidos, se hará todo lo posible por salvaguardar la información.
+
+V. Cookies Las cookies son archivos de datos que se almacenan en el disco duro de los equipos al navegar en un sitio de internet específico, el cual permite intercambiar información de estado entre dicho sitio y el navegador de usuario. La próxima vez que ingrese a nuestro portal www.uruapanmovil.com podremos usar la información almacenada en la cookie con la única finalidad de facilitarle el uso de nuestro sitio de internet. En el caso de empleo de cookies, el botón de "ayuda" que se encuentra en la barra de herramientas de la mayoría de los navegadores, le dirá cómo evitar aceptar nuevos cookies, cómo hacer que el navegador le notifique cuando recibe un nuevo cookie o cómo deshabilitar todos los cookies.
+
+VI. Derechos ARCO Derechos ARCO (acceso, rectificación, cancelación y oposición) El área responsable del manejo y la administración de los datos personales es: Área de Datos Personales a quien puede contactar mediante el correo electrónico arco@uruapanmovil.com
+
+Para ejercer sus derechos arco y revocar el consentimiento otorgado. Como titular de datos personales, el "Usuario" podrá ejercer los derechos ARCO (acceso, cancelación, rectificación y oposición al tratamiento de sus datos personales), o bien, revocar el consentimiento que haya otorgado a Uruapan Movil para el tratamiento de sus datos personales, enviando directamente su solicitud al Área de Datos Personales a través de la cuenta de correo electrónico: arco@uruapanmovil.com
+
+Cambios en el aviso de privacidad Nos reservamos el derecho de efectuar en cualquier momento modificaciones o actualizaciones al presente aviso de privacidad, para la atención de novedades legislativas o jurisprudenciales, políticas internas, nuevos requerimientos para la prestación u ofrecimiento de nuestros servicios o productos y prácticas del mercado. Estas modificaciones estarán disponibles al público a través de nuestra página de Internet www.uruapanmovil.com y/o en la aplicación [uruapanmovil], sección aviso de privacidad.
+
+Aceptación de los términos Esta declaración de Privacidad está sujeta a los términos y condiciones del sitio web y/o la aplicación de Uruapan Movil antes descrito, lo cual constituye un acuerdo legal entre el usuario y Uruapan Movil Si el usuario utiliza los servicios en cualquiera de los sitios de Uruapan Movil Significa que ha leído, entendido y acordado los términos antes expuestos.
+
+Autoridad Si el usuario considera que han sido vulnerados sus derechos respecto de la protección de datos personales, tiene el derecho de acudir a la autoridad correspondiente para defender su ejercicio. La autoridad es el Instituto Federal de Acceso a la Información y Protección de Datos (IFAI), su sitio web es: www.ifai.mx.
+
+Fecha de la última actualización. Estimado usuario, se le notifica que el Aviso de Privacidad ha sido modificado el día 15 de diciembre de 2015.
+
+VII. Área de Datos Personales Para cualquier asunto relacionado con este Aviso de Privacidad, el tratamiento de sus datos personales y/o para el ejercicio de sus Derechos ARCO, usted tendrá las siguientes opciones (i) acudir directamente a las oficinas de Uruapan Movil cuyo domicilio ya ha sido establecido; (ii) efectuar su solicitud por escrito vía correo electrónico a la siguiente dirección arco@uruapanmovil.com con horario de atención de lunes a viernes de 9:00 a 16:00 horas. </p><br /><br />                                                                        
+    </center>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION TERMINOS Y CONDICIONES***********************************************-->
+<section data-role="page" id="terminosyCondiciones">
+  <div class="lst"> 
+    <div class="header_terminosyc">
+        <a href="#contacto" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  <div data-role="content">
+    <center>
+      <p style="color: #666666; font-size:29px; font-weight:100; text-align:justify; margin-left:50px; margin-right:50px;">
+        En el sitio web www.uruapanmovil.com y la aplicación Uruapan Movil (en lo sucesivo “Comercio Mil”) los productos y servicios publicitados por terceros, las páginas a las que se pueda acceder a través del mismo, su uso y/o la descarga de información contenida en él (en lo sucesivo los “Productos y Servicios”), se encuentran condicionado(a)s a la aceptación completa de los términos y condiciones que se expresan a continuación:
+
+Quien no aceptare los presentes términos y condiciones, deberá abstenerse de acceder a este sitio, ya sea directa o indirectamente, y de utilizar cualquier información o Productos y Servicios provistos por el mismo.
+
+Uruapan Movil puede presentar ciertos contenidos que solo se encuentren restringidos a personas mayores de edad. La creación de una cuenta en Uruapan Movil, es obligatoria para la adquisición de los Productos y Servicios. La información de la cuenta, es necesaria para el acceso al sistema, modificación de preferencias, atención de servicio al cliente y para asegurar el uso autorizado de las dinámicas, Productos y Servicios e información personal.
+
+
+Glosario:
+
+
+CLIENTES: Es el tercero, ya sea persona natural o jurídica, que publicita sus servicios y productos a través de Uruapan Movil.
+
+USUARIO: Es la persona natural o jurídica que accede a Uruapan Movil voluntariamente para disfrutar de Productos y Servicios.
+
+URUAPAN MOVIL: Es una Compañía que puede actuar de dos maneras:
+
+- Como proveedor de servicio de publicidad para sus Clientes: En estos casos actúa como un catálogo permitiendo que terceros publiciten en su página web y en su aplicación. - Proveedor de Productos y Servicios a través de su página web y aplicación para sus Usuarios. 
+    </p><br /><br />
+    </center>
+  </div>
+</section>
+<!-- ***********************************************************INICIO SECCION PERSONAS EXTRAVIADAS*************************************************-->
+<section data-role="page" id="personasextraviadas">
+  <div class="lst"> 
+    <div class="header_contacto">
+      <a href="#utiles" class="back"></a>
+      <a href="#inicio" class="home"></a>
+    </div>
+  </div>
+  <center>
+    <div class="buttonList large">            
+      <a class="leftTopPE" rel="external" data-transition="slide" href="listadoPersonasExtraviadas.html?id=37"></a>
+      <a class="rightTopMA" rel="external" data-transition="slide" href="#mascotas"></a>                                 
+    </div>            
+  </center> 
+</section>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">'
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Uruapan Móvil</title>      
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css"/>
+<link rel="stylesheet" href="css/u.min.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/stroll.min.css">
+	<script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>     		
+    <script src="plugins/jquery-1.11.1.min.js"></script>
+    <script src="plugins/stroll.min.js"></script>  
+    <script src="plugins/main.js"></script>    
+	<script type="text/javascript" src="plugins/monaca.viewport.js"></script>         
+	<script type="text/javascript" charset="utf-8">											
+    document.addEventListener("deviceready", onDeviceReady, false);			
+    function onDeviceReady() {
+      window.plugin.statusbarOverlay.hide();
+    }
+
+    function alertDismissed() {					
+      location.href='sininternet.html';
+      navigator.app.exitApp();
+    }		
+
+    function onDeviceReady() 
+    {
+      if(navigator.network.connection.type == Connection.NONE)
+      {
+          navigator.notification.vibrate(1000);
+          navigator.notification.alert(
+          'No hay conexión a Internet. Esta App no puede funcionar de manera correcta.',  // message
+          alertDismissed, // callback
+          'Alerta!',      // title
+          'Aceptar'       // buttonName											                       
+          );													
+      }
+       $( ".loading_spinner_all" ).hide();
+    }																																						  																		
+	</script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $("#autocomplete-input").keydown(function(event){
+            if  (event.which == 13) // Si el usuario presiona enter
+            {
+              var cajaBusqueda = document.getElementById("autocomplete-input");  
+              cajaBusqueda.blur();
+              var contenedor = document.getElementById("contsearch");
+              contenedor.style.width ="1200px";
+              busqueda();
+            }                                       
+          }); 
+    });      
+        
+    $(document).on('click', '.ui-input-clear', function () {
+        //alert('El wey que trae el celular limpio la caja: ');
+         $( ".Botones" ).show();
+         $( ".logo" ).show();
+         $( "#article_list" ).hide();
+    });
+    
+    function MostrarHome()
+    {
+      if ($("#autocomplete-input").val() == "")
+      {
+         $( ".Botones" ).show();
+         $( ".logo" ).show();
+         $( "#article_list" ).hide();
+      }      
+    }   
+    
+	function update(scale) {
+		document.getElementById("useragent").textContent = navigator.userAgent;
+		document.getElementById("scale").textContent = scale || "none";
+	
+		if (monaca.viewport.isAndroid()) {
+			document.getElementById("device").textContent = "Android";
+		} else if (monaca.viewport.isIos()) {
+			document.getElementById("device").textContent = "iOS";
+		}
+	}
+    
+	monaca.viewport({
+		width : 1080,
+		onAdjustment : update
+	});
+    
+    function quitarSpinner()
+    {
+       $( ".loading_spinner_all" ).hide();
+    }
+	</script>
+    
+</head>
+  <body onload="quitarSpinner();">
+<div data-role="page">
+		<center>
+        	<div class="logo"></div>
+        </center>
+        <center>
+            <div class="contsearch">                   
+                <input id="autocomplete-input" onkeyup="MostrarHome()"  data-type="search" placeholder="Buscar...">                                 
+            </div>    
+        </center>
+  <div class="loading_spinner_all"><img src="images/loading.gif" width="128" height="128"></div>
+    <div id="article_list">
+    <script>
+      function busqueda()
+      {
+        function getQueryVariable(variable)
+        {
+          var query = window.location.search.substring(1);
+          var vars = query.split("&");
+          for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+      }
+      
+      var buscar = $("#autocomplete-input").val();
+  //var mid = getQueryVariable("id");						
+  //var buscar = document.getElementById("autocomplete-input");
+        //buscar = "Zoe";					
+      $( ".loading_spinner_all" ).show();				
+      $.ajax({
+      type: "GET",
+      url: "http://uruapanmovil.interlabs.com.mx/nta_server/busqueda.php?buscar="+ buscar +"",
+      dataType: "html",
+      crossDomain: true,
+      beforeSend: function() { $( ".loading_spinner_all" ).show(); },
+      success: function(data) {						
+      $( ".loading_spinner_all" ).hide();
+      $( ".Botones" ).hide();
+      $( ".logo" ).hide();
+      $( "#article_list" ).show();
+      $('#article_list').html(data);					
+      stroll.bind( '#article_list ul' );
+      var processing;
+      var limit = 10;
+      window.sessionStorage.setItem("dbe",'start');					
+      $('#article_list ul').scroll(function() {
+          if (processing)
+          return false;
+              if($(this)[0].scrollTop >= $(this)[0].scrollHeight - $(this).height() - 400) { 																
+                  if(window.sessionStorage.getItem("dbe") == 'end'){ 
+                      var end = window.sessionStorage.getItem("dbe"); 
+                  } else {
+                      var end = 'start';	
+                  }
+                  if (end == 'start'){  
+                  processing = true;
+
+                  $.ajax({
+                      type: "GET",
+                      url: "http://uruapanmovil.interlabs.com.mx/nta_server/busqueda.php?buscar="+  +"&limit="+ limit +"",									
+                      dataType: "html",
+                      crossDomain: true,
+                      beforeSend: function() { $( ".loading_spinner_all" ).show(); },			
+                      success: function(html) {
+                      //alert("Esta alerta solo se muestra cuando va a cargar?");
+                      $( ".loading_spinner_all" ).hide();									
+                      //$('#article_list ul').append(html);
+                      //stroll.bind( '#article_list ul' );
+                       //processing = false;
+                       //limit = limit + 10;
+                       $("#MensajeCarga").html("<p align='center'>No hay más resultados para mostrar</p>. <p align='center'>Gracias por usar Uruapan Móvil</p>");
+                      },
+                      error: function(){
+
+                          $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+                      }
+                  });
+
+                  }
+              } 
+      });				
+
+      },
+      error: function(){
+          $('#article_list').slideDown("slow").show(100).html('<div class="ce">Error: Connection problem...</div>').delay(10000).slideUp("slow").hide(100);
+      }
+      });
+  }
+</script>
+      <div id="MensajeCarga" name="MensajeCarga" clas="MensajeCarga"></div>
+</div> 
+  <div data-role="f" id="Botones" class="Botones">
+        <center>
+            <div class="buttonList large">						
+                <a class="leftTop"  href="#listadoEmpresas"></a>
+                <a class="rightTop" rel="external" data-transition="slide" href="listadoPromociones.html?id=2"></a>										
+                <a class="leftMiddle" rel="external" data-transition="slide" href="listadoNoticias.html?id=3"></a>					
+                <a class="rightMiddle" rel="external" data-transition="slide" href="listadoEventos.html?id=4"></a> 
+                <a class="leftBottom" rel="external" data-transition="slide" href="listadoTurismo.html?id=5"></a>					
+                <a class="rightBottom"   href="#utiles"></a>                    
+            </div>            
+        </center>
+  </div>
+</div><!-- fin data-role="page" -->
+<!-- ***********************************************************INICIO SECCION EMPRESAS*************************************************************-->
+<section data-role="page" id="listadoEmpresas" data-add-back-btn="false" data-theme="a">
+ 		<div class="lst"> 
+            <div class="header_empresas">
+                <a href="index.html" class="back"></a>
+            </div>
+</div>
+
+    	<br /><br />
+        <center>
+        	<div class="contsearch">    
+                <form class="ui-filterable">
+                    <input id="autocomplete-input" data-type="search" placeholder="Buscar...">
+                </form>
+            </div> 
+        </center>   	
+    	<div data-role="content">
+
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaA.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaB.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaC.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaD.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaE.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaF.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaG.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaH.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaI.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaJ.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaK.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaL.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaM.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaN.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaO.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaP.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaQ.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaR.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaS.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaT.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaU.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaV.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaW.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaX.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>   
+			<li >
+            <a href="article_list.html?id=30" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaY.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_title"></div>
+                        <div class="category_bg_data"></div>                        
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.interlabs.com.mx/nta_server/images/articles/CategoriaZ.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg2">
+                        <div class="category_bg_data"></div>
+                        <div class="category_bg_title"></div>
+                    </div>
+                </div>
+            </a>
+            </li>                                                                                                                                                   
+
+
+
+
+		</div>    
+</section>
+<!-- ***********************************************************INICIO SECCION UTILES*************************************************************-->
+<section data-role="page" id="utiles" data-add-back-btn="false" data-theme="a">
+ 		<div class="lst"> 
+            <div class="header_utiles">
+                <a href="index.html" class="back"></a>                
+            </div>
+		</div>  	
+    	<div data-role="content">
+        	<center>
+        		<div class="buttonList large">						
+                    <a class="leftTopSubmenu" rel="external" data-transition="slide" href="listadoTaxis.html?id=6"></a>
+                    <a class="rightTopSubmenu" rel="external" data-transition="slide" href="listadoEmergencias.html?id=7"></a>										
+                    <!--<a class="leftMiddleSubmenu" rel="external" data-transition="slide" href="listadoComunidad.html?id=8"></a>-->
+                    <a class="leftMiddleSubmenu" rel="external" data-transition="slide" href="#comunidad"></a>					
+                    <a class="rightMiddleSubmenu" rel="external" data-transition="slide" href="listadoGobierno.html?id=9"></a>                
+                </div>            
+          </center>
+		</div>    
+</section>
+
+<!-- ***********************************************************INICIO SECCION COMUNIDAD*************************************************************-->
+<section data-role="page" id="comunidad">
+ 		<div class="lst"> 
+            <div class="header_comunidad">
+                <a href="#utiles" class="back"></a>
+            </div>
+		</div>
+    	<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />        	
+    	<div data-role="content">
+			<li >
+            <a href="listadoPersonasExtraviadas.html?id=37" class="category_bg">
+                <div class="category_bg_img" style="background:url(images/personas.jpg) no-repeat;">
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="#mascotas" class="category_bg">
+                <div class="category_bg_img" style="background:url(images/mascotas.jpg) no-repeat;">
+                </div>
+            </a>
+            </li>
+		</div>    
+</section>
+
+<!-- ************************************************************************************************************************************************-->
+<!-- ***********************************************************INICIO SECCION PERSONAS*************************************************************-->
+
+
+<!-- ************************************************************************************************************************************************-->
+<!-- ***********************************************************INICIO SECCION MASCOTAS*************************************************************-->
+<section data-role="page" id="mascotas">
+ 		<div class="lst"> 
+            <div class="header_mascotas">
+                <a href="#comunidad" class="back"></a>
+            </div>
+		</div>
+    	<br /><br /><br /><br /><br /><br /><br /><br /><br />  	
+    	<div data-role="content">
+			<li >
+            <a href="listadoMascotasEncontradas.html?id=39" class="category_bg">
+                <div class="category_bg_img" style="background:url(images/Mascotas_encontradas1.jpg) no-repeat;">
+                </div>
+            </a>
+            <li >
+            <a href="listadoMascotasExtraviadas.html?id=38" class="category_bg">
+                <div class="category_bg_img" style="background:url(images/Mascotas_extraviadas1.jpg) no-repeat;">
+                </div>
+            </a>
+            </li>       
+            <li >
+            <a href="listadoMascotasAdopcion.html?id=40" class="category_bg">
+                <div class="category_bg_img" style="background:url(images/Mascotas_adopcion.jpg) no-repeat;">                                          
+                </div>
+            </a>l
+            </li>          
+		</div>    
+</section>
+<!-- ************************************************************************************************************************************************-->
+</body>
+</html>

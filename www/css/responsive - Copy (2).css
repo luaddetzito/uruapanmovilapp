@@ -1,0 +1,18 @@
+@charset "utf-8";
+
+.logo{ width:800px; height: 250px; left: 50%; margin-top:10px; /*background-color:pink; */background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/logo.png');}
+.buttonList a { position: fixed; cursor:	pointer;}
+.buttonList.large a	{ margin-top:380px; width: 315px; height: 315px;}
+.buttonList a.leftTop { left: 20%; margin-left: -40px; top: 0px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/empresas1.jpg');}
+.buttonList a.rightTop { right: 20%; margin-right: -40px; top: 0px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/promociones1.jpg');}
+.buttonList a.leftMiddle { left: 20%; margin-left: -40px; top: 360px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/noticias1.jpg');}
+.buttonList a.rightMiddle { right: 20%; margin-right: -40px; top: 360px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/eventos1.jpg');}
+.buttonList a.leftBottom { left: 20%; margin-left: -40px; top: 730px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/turismo1.jpg');}
+.buttonList a.rightBottom { right: 20%; margin-right: -40px; top: 730px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/utiles1.jpg');}
+.buttonList a.leftTopSubmenu { left: 20%; margin-left: -40px; top: -120px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/taxis1.jpg');}
+.buttonList a.rightTopSubmenu { right: 20%; margin-right: -40px; top: -120px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/emergencias1.jpg');}
+.buttonList a.leftMiddleSubmenu { left: 20%; margin-left: -40px; top: 260px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/comunidad1.jpg');}
+.buttonList a.rightMiddleSubmenu { right: 20%; margin-right: -40px; top: 260px; background-size:cover; background-image:url('http://www.uruapanmovil.com/app/assets/gobierno1.jpg');}
+.marginfinal { width:240px; height: 2px; margin-bottom: 220px;}
+.contsearch { width:65%; }
+.ui-input-search input{padding-left: 1.05em; height:60px; font-size:28px;}

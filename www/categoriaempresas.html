@@ -1,0 +1,107 @@
+<!DOCTYPE html> 
+<html> 
+<head>
+	<meta charset="utf-8"> 
+	<title>News Time App</title> 
+	<meta id="Viewport" name="viewport">      		 
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/stroll.min.css">
+    <script src="plugins/jquery-1.11.1.min.js"></script>
+    <script src="plugins/stroll.min.js"></script>  
+    <script src="plugins/main.js"></script>
+    <script src="cordova.js"></script>
+    <script type="text/javascript" src="plugins/monaca.viewport.js"></script>
+	<script type="text/javascript">    
+    function update(scale) {
+        document.getElementById("useragent").textContent = navigator.userAgent;
+        document.getElementById("scale").textContent = scale || "none";
+    
+        if (monaca.viewport.isAndroid()) {
+            document.getElementById("device").textContent = "Android";
+        } else if (monaca.viewport.isPCBrowser()) {
+            document.getElementById("device").textContent = "PC";
+        }
+	}		
+		monaca.viewport({
+			width : 1080,
+			onAdjustment : update
+		});											
+	</script>   
+</head> 
+<body> 
+ 		<div class="lst">       
+            <div class="logo_small">
+                <a href="index.html" class="back"></a>
+                <a href="index.html" class="bm"></a>
+                <a href="index.html" class="home"></a>
+            </div>
+        </div>
+		<div class="cth"></div>
+        
+        <div id="article_list">
+		              		                 
+       
+            <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/33_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/26_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/26_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/26_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/26_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+             <li class="">
+            <a href="article.html?id=2&amp;art=26" class="category_bg">
+                <div class="category_bg_img" style="background:url(http://uruapanmovil.com/nta_server/images/articles/26_a.jpg) no-repeat;">
+                    <div class="category_bg_txt_bg">
+                        <div class="category_bg_data">Social Media Integration</div>
+                        <div class="category_bg_title">Social Media Integration</div>
+                    </div>
+                </div>
+            </a>
+            </li>
+               	        
+        </div>         
+</body>
+</html>

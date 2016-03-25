@@ -1,0 +1,10 @@
+.ui-listview .ui-li-has-thumb>img:first-child, .ui-listview .ui-li-has-thumb>.ui-btn>img:first-child, .ui-listview .ui-li-has-thumb .ui-li-thumb {
+position: absolute;
+left: 0;
+top: 0;
+max-height: 81px;
+max-width: 81px;
+height: 81px;
+width: 81px;
+}
+
